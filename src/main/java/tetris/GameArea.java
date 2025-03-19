@@ -21,7 +21,7 @@ public class GameArea extends JPanel {
 
     public GameArea(int columns, int rows) {
         // Set a fixed preferred size for the game area
-        this.setPreferredSize(new Dimension(200, 300)); // Ensure it fits within placeholder
+        this.setPreferredSize(new Dimension(400, 300)); // Ensure it fits within placeholder
         this.setBackground(Color.BLACK);
         this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
 
@@ -36,9 +36,9 @@ public class GameArea extends JPanel {
 
         background = new Color[gridRows][gridColumns];
         blocks = new TetrisBlock[]{new i_Shape(),new J_Shape()
-        ,new L_Shape(), new O_Shape(), new S_Shape(), new T_Shape(), new Z_Shape()};
+                ,new L_Shape(), new O_Shape(), new S_Shape(), new T_Shape(), new Z_Shape()};
         //background[0][0] = Color.blue;
-       // spawnBlock();
+        // spawnBlock();
     }
 
     public void moveBlockToBackground(){
@@ -67,7 +67,11 @@ public class GameArea extends JPanel {
     {
         Random r = new Random();
         block = blocks[r.nextInt(blocks.length)];
+        block = new TetrisBlock(block.getShape());
         block.spawn(gridColumns);
+
+
+        repaint();
     }
     private void drawBlock(Graphics g)
     {
@@ -181,7 +185,7 @@ public class GameArea extends JPanel {
             block.setX(gridColumns-block.getWidth());
         if(block.getBottomEdge() >= gridRows)
             block.setY(gridRows - block.getHeight());
-      repaint();
+        repaint();
     }
 
 
@@ -283,7 +287,7 @@ public class GameArea extends JPanel {
         for(int r = gridRows -1; r >= 0; r--)
         {
             lineFilled = true;
-            for(int c = 0; c < gridRows; c++)
+            for(int c = 0; c < gridColumns; c++)
             {
                 if(background[r][c] == null)
                 {
@@ -297,7 +301,7 @@ public class GameArea extends JPanel {
                 clearLine(r);
                 shiftDown(r);
                 clearLine(0);
-                r++;
+
                 repaint();
             }
         }

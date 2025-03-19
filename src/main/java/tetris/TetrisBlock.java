@@ -10,9 +10,11 @@ public class TetrisBlock {
     private int[][][] shapes;
     private int currentRotation;
     private Color[] availColors = {Color.green,Color.red,Color.blue};
+    private Color lastColor = null;
     public TetrisBlock(int [][] shape)
     {
         this.shape = shape;
+        this.color = getNewColor();
         initShapes();
 
     }
@@ -45,6 +47,17 @@ public class TetrisBlock {
     public Color getColor()
     {
         return color;
+    }
+    public Color getNewColor(){
+        Random r = new Random();
+        Color newColor = availColors[r.nextInt(availColors.length)];
+
+        while(newColor.equals(lastColor))
+        {
+            newColor = availColors[r.nextInt(availColors.length)];
+        }
+        lastColor = newColor;
+        return newColor;
     }
     public int getHeight(){return shape.length;}
     public int getWidth(){return shape[0].length;}

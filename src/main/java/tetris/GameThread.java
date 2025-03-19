@@ -10,7 +10,7 @@ public class GameThread extends Thread{
     private int speedupPerLevel = 100;
 
     private int pause = 1000;
-    private int speed = 100;
+    private int speed = 1000;
     public GameThread(GameArea ga, GameForm gf)
     {
         this.ga = ga;
@@ -22,7 +22,7 @@ public class GameThread extends Thread{
             ga.spawnBlock();
             while(ga.moveBlockDown())
             try {
-                Thread.sleep(1000);
+                Thread.sleep(speed);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -44,4 +44,13 @@ public class GameThread extends Thread{
             }
     }
 
+    public void increaseSpeed() {
+        int minSpeed = 200;
+        if (speed > minSpeed) {
+            speed -= minSpeed; // Increase speed by reducing delay
+            System.out.println("New Speed: " + speed + "ms per move");
+        } else {
+            System.out.println("Maximum speed reached!");
+        }
+    }
 }
