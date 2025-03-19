@@ -1,13 +1,10 @@
 package tetris;
 
-import TetrisBlocks.i_Shape;
-import tetris.TetrisBlock;
+import TetrisBlocks.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
-
-import TetrisBlocks.*;
 
 public class GameArea extends JPanel {
 
@@ -18,16 +15,21 @@ public class GameArea extends JPanel {
 
     private TetrisBlock block;
     private TetrisBlock[] blocks;
+    private boolean useColor = false; //for color option
+
 
     public GameArea(int columns, int rows) {
         // Set a fixed preferred size for the game area
-        this.setPreferredSize(new Dimension(400, 300)); // Ensure it fits within placeholder
+        this.setPreferredSize(new Dimension(300, 400)); // Ensure it fits within placeholder
         this.setBackground(Color.BLACK);
-        this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+        this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 5));
 
         // Initialize grid properties
         this.gridColumns = columns;
         this.gridRows = rows;
+        // Slightly extend beyond the grid for a clean border
+        int panelWidth = gridColumns * gridCellSize + 20; // Extra padding
+        int panelHeight = gridRows * gridCellSize + 20;
 
         // Calculate grid cell size dynamically
         int width = getPreferredSize().width;
@@ -63,55 +65,97 @@ public class GameArea extends JPanel {
         }
     }
 
-    public void spawnBlock()
-    {
+    public void spawnBlock() {
         Random r = new Random();
         block = blocks[r.nextInt(blocks.length)];
         block = new TetrisBlock(block.getShape());
-        block.spawn(gridColumns);
 
+        // Ensure the block spawns within the grid width
+        int maxSpawnX = gridColumns - block.getWidth();
+        int spawnX = Math.max(0, r.nextInt(maxSpawnX + 1)); // Ensure valid X position
+
+        block.setX(spawnX);
+
+        // Spawn block **above** the grid to give a falling effect
+        int spawnY = -block.getHeight(); // Place block above the first row
+        block.setY(spawnY);
 
         repaint();
     }
-    private void drawBlock(Graphics g)
-    {
-        int h = block.getHeight();
-        int w = block.getWidth();
-        Color c = block.getColor();
-        int[][] shape = block.getShape();
 
 
-        for(int row = 0; row < block.getHeight(); row++)
-        {
-            for(int col = 0; col < block.getWidth(); col++)
-            {
-                if(block.getShape()[row][col]==1)
-                {
-                    int x = (block.getX()+col) * gridCellSize;
-                    int y = (block.getY()+row) * gridCellSize;
+    private void drawBackground(Graphics g, int xOffset, int yOffset) {
+        for (int r = 0; r < gridRows; r++) {
+            for (int c = 0; c < gridColumns; c++) {
+                if (background[r][c] != null) {
+                    int x = xOffset + c * gridCellSize;
+                    int y = yOffset + r * gridCellSize;
 
-
-                    drawGridSquare(g,c,x,y);
+                    Color drawColor = useColor ? background[r][c] : Color.GRAY;
+                    drawGridSquare(g, drawColor, x, y);
                 }
             }
         }
     }
 
+    private void drawBlock(Graphics g, int xOffset, int yOffset) {
+        if (block == null) return;
+
+        int h = block.getHeight();
+        int w = block.getWidth();
+        Color c = useColor ? block.getColor() : Color.GRAY;
+        int[][] shape = block.getShape();
+
+        for (int row = 0; row < h; row++) {
+            for (int col = 0; col < w; col++) {
+                if (shape[row][col] == 1) {
+                    int blockX = block.getX() + col;
+                    int blockY = block.getY() + row;
+
+                    // Only draw if the block is within the visible grid (blockY >= 0)
+                    if (blockY >= 0) {
+                        int x = xOffset + blockX * gridCellSize;
+                        int y = yOffset + blockY * gridCellSize;
+                        drawGridSquare(g, c, x, y);
+                    }
+                }
+            }
+        }
+    }
+
+
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.setColor(Color.WHITE); // Grid color
+        // Calculate the grid dimensions and center it within the panel
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+        int gridWidth = gridColumns * gridCellSize;
+        int gridHeight = gridRows * gridCellSize;
+
+        int xOffset = (panelWidth - gridWidth) / 2;
+        int yOffset = (panelHeight - gridHeight) / 2;
+
+        // Fill only a slightly larger black background (not full screen)
+        g.setColor(Color.BLACK);
+        g.fillRect(xOffset - 10, yOffset - 10, gridWidth + 20, gridHeight + 20);
+
+        g.setColor(Color.WHITE);
 
         // Draw grid
         for (int y = 0; y < gridRows; y++) {
             for (int x = 0; x < gridColumns; x++) {
-                g.drawRect(x * gridCellSize, y * gridCellSize, gridCellSize, gridCellSize);
+                g.drawRect(xOffset + x * gridCellSize, yOffset + y * gridCellSize,
+                        gridCellSize, gridCellSize);
             }
         }
-        drawBackground(g);
-        drawBlock(g);
+
+        drawBackground(g, xOffset, yOffset);
+        drawBlock(g, xOffset, yOffset);
     }
+
 
     public boolean isBlockOutOfBounds()
     {
@@ -121,27 +165,22 @@ public class GameArea extends JPanel {
         }
         return false;
     }
-    private void drawBackground(Graphics g)
-    {
-        Color color;
-        for(int r = 0; r < gridRows; r++)
-        {
-            for(int c = 0; c <gridColumns; c++)
-            {
-                color = background[r][c];
-                if(color != null)
-                {
+   /* private void drawBackground(Graphics g) {
+        for (int r = 0; r < gridRows; r++) {
+            for (int c = 0; c < gridColumns; c++) {
+                if (background[r][c] != null) {
                     int x = c * gridCellSize;
                     int y = r * gridCellSize;
 
-                    drawGridSquare(g,color, x, y);
-
+                    // Use stored color or gray if color mode is off
+                    Color drawColor = useColor ? background[r][c] : Color.GRAY;
+                    drawGridSquare(g, drawColor, x, y);
                 }
             }
         }
     }
 
-
+*/
     private void drawGridSquare(Graphics g, Color color, int x, int y)
     {
         g.setColor(color);
@@ -179,14 +218,45 @@ public class GameArea extends JPanel {
         if(block == null) return;
 
         block.rotate();
-        if(block.getLeftEdge()< 0)
+
+        // Check if rotation causes out-of-bounds issue
+        if(block.getLeftEdge() < 0)
             block.setX(0);
         if(block.getRightEdge() >= gridColumns)
-            block.setX(gridColumns-block.getWidth());
+            block.setX(gridColumns - block.getWidth());
         if(block.getBottomEdge() >= gridRows)
             block.setY(gridRows - block.getHeight());
+
+        // If block collides with the background, undo the rotation
+        if(isCollision())
+            block.rotateBack();
+
         repaint();
     }
+    private boolean isCollision() {
+        int[][] shape = block.getShape();
+        int w = block.getWidth();
+        int h = block.getHeight();
+
+        for (int row = 0; row < h; row++) {
+            for (int col = 0; col < w; col++) {
+                if (shape[row][col] != 0) {
+                    int x = block.getX() + col;
+                    int y = block.getY() + row;
+
+                    if (y >= 0 && y < gridRows && x >= 0 && x < gridColumns) {
+                        if (background[y][x] != null) {
+                            return true; // Collision detected
+                        }
+                    } else {
+                        return true; // Out of bounds
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 
 
     public boolean moveBlockDown()
@@ -327,4 +397,8 @@ public class GameArea extends JPanel {
         }
     }
 
+    public void setUseColor(boolean useColor) {
+        this.useColor = useColor;
+        repaint();
+    }
 }

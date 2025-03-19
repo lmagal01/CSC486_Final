@@ -9,7 +9,7 @@ public class TetrisBlock {
     private int x ,y;
     private int[][][] shapes;
     private int currentRotation;
-    private Color[] availColors = {Color.green,Color.red,Color.blue};
+    private Color[] availColors = {Color.green,Color.red,Color.blue, Color.orange, Color.cyan,Color.yellow, Color.MAGENTA};
     private Color lastColor = null;
     public TetrisBlock(int [][] shape)
     {
@@ -70,6 +70,7 @@ public class TetrisBlock {
     public void moveLeft(){x--;}
     public void moveRight(){x++;}
 
+    //make block appear randomly
     public void spawn(int gridWidth)
     {
         Random r = new Random();
@@ -82,6 +83,7 @@ public class TetrisBlock {
 
     }
 
+    //rotate blocks
     public void rotate()
     {
         currentRotation++;
@@ -93,6 +95,14 @@ public class TetrisBlock {
     public int getBottomEdge(){return y + getHeight();}
     public int getLeftEdge(){return x;}
     public int getRightEdge(){return x + getWidth();}
+
+    public void rotateBack() {
+        // Rotate 3 more times to revert to the original orientation
+        this.rotate();
+        this.rotate();
+        this.rotate();
+    }
+
 
 }
 

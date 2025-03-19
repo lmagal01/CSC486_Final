@@ -4,50 +4,63 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class GameForm extends JFrame {
+public class GameForm extends JPanel {
 
     private GameArea ga;
     private GameThread gameThread;
     private JButton speedButton;
+    private JButton colorButton;
+    private boolean useColor;
 
     public GameForm() {
-        setTitle("Tetris Game");
-        setSize(600, 700); // Adjust size to fit game area and controls
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout()); // Use BorderLayout instead of GridBagLayout
+        setLayout(new BorderLayout());
+
+        setFocusable(true);
+        requestFocusInWindow();
 
         // Create the game area (10x20 grid)
         ga = new GameArea(10, 20);
-        ga.setPreferredSize(new Dimension(900, 800));
+        ga.setPreferredSize(new Dimension(300, 600));
 
         // Add game area to the CENTER of the frame
         add(ga, BorderLayout.CENTER);
 
-        // Create control panel for the button
+        // Create control panel for buttons
         JPanel controlPanel = new JPanel();
         speedButton = new JButton("Increase Speed");
+        colorButton = new JButton("Color/NoColor");
 
-        // Button increases the speed
-        speedButton.addActionListener((ActionEvent e) -> {
+        // Speed button logic
+        speedButton.addActionListener(e -> {
             if (gameThread != null) {
                 gameThread.increaseSpeed();
             }
         });
 
-        controlPanel.add(speedButton);
+        // Color button logic
+        colorButton.addActionListener(e -> {
+            useColor = !useColor;
+            colorButton.setText(useColor ? "Color: ON" : "Color: OFF");
+            ga.setUseColor(useColor);
+            ga.repaint();
+        });
 
-        // Add button panel to the SOUTH of the frame
+        controlPanel.add(speedButton);
+        controlPanel.add(colorButton);
         add(controlPanel, BorderLayout.SOUTH);
 
-        // Initialize controls
         initControls();
         startGame();
     }
 
     private void initControls() {
-        InputMap im = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap am = this.getRootPane().getActionMap();
+        setFocusable(true);
+        requestFocusInWindow();
+
+
+
+        InputMap im = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = this.getActionMap();
 
         im.put(KeyStroke.getKeyStroke("RIGHT"), "right");
         im.put(KeyStroke.getKeyStroke("LEFT"), "left");
@@ -57,25 +70,36 @@ public class GameForm extends JFrame {
         am.put("right", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("Right key pressed!");  // Debugging
                 ga.moveBlockRight();
+                ga.repaint();
             }
         });
+
         am.put("left", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("Left key pressed!");  // Debugging
                 ga.moveBlockLeft();
+                ga.repaint();
             }
         });
+
         am.put("up", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("Up key pressed!");  // Debugging
                 ga.rotateBlock();
+                ga.repaint();
             }
         });
+
         am.put("down", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("Down key pressed!");  // Debugging
                 ga.moveDown();
+                ga.repaint();
             }
         });
     }
@@ -83,9 +107,5 @@ public class GameForm extends JFrame {
     public void startGame() {
         gameThread = new GameThread(ga, this);
         gameThread.start();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GameForm().setVisible(true));
     }
 }
