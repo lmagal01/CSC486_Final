@@ -10,7 +10,9 @@ public class GameForm extends JPanel {
     private GameThread gameThread;
     private JButton speedButton;
     private JButton colorButton;
+    private JButton startButton;
     private boolean useColor;
+    private JButton restart;
 
     public GameForm() {
         setLayout(new BorderLayout());
@@ -18,17 +20,25 @@ public class GameForm extends JPanel {
         setFocusable(true);
         requestFocusInWindow();
 
-        // Create the game area (10x20 grid)
+        //  game area (10x20 grid)
         ga = new GameArea(10, 20);
         ga.setPreferredSize(new Dimension(300, 600));
 
-        // Add game area to the CENTER of the frame
+        //  game area to the CENTER of the frame
         add(ga, BorderLayout.CENTER);
 
-        // Create control panel for buttons
+        //  control panel for buttons
         JPanel controlPanel = new JPanel();
         speedButton = new JButton("Increase Speed");
         colorButton = new JButton("Color/NoColor");
+        startButton = new JButton("Play");
+        restart = new JButton("Restart");
+        restart.setVisible(false);
+
+        startButton.addActionListener(e -> {
+            initControls();
+            startGame();
+                });
 
         // Speed button logic
         speedButton.addActionListener(e -> {
@@ -45,14 +55,16 @@ public class GameForm extends JPanel {
             ga.repaint();
         });
 
+        controlPanel.add(startButton);
         controlPanel.add(speedButton);
         controlPanel.add(colorButton);
+        controlPanel.add(restart);
         add(controlPanel, BorderLayout.SOUTH);
 
-        initControls();
-        startGame();
+
     }
 
+    //controls are inputted here in keyboard
     private void initControls() {
         setFocusable(true);
         requestFocusInWindow();
@@ -70,7 +82,7 @@ public class GameForm extends JPanel {
         am.put("right", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Right key pressed!");  // Debugging
+                System.out.println("Right key pressed!");  // debugging with print statements
                 ga.moveBlockRight();
                 ga.repaint();
             }
@@ -79,7 +91,7 @@ public class GameForm extends JPanel {
         am.put("left", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Left key pressed!");  // Debugging
+                System.out.println("Left key pressed!");  // debugging with print statements
                 ga.moveBlockLeft();
                 ga.repaint();
             }
@@ -88,7 +100,7 @@ public class GameForm extends JPanel {
         am.put("up", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Up key pressed!");  // Debugging
+                System.out.println("Up key pressed!");  // debugging with print statements
                 ga.rotateBlock();
                 ga.repaint();
             }
@@ -97,15 +109,23 @@ public class GameForm extends JPanel {
         am.put("down", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Down key pressed!");  // Debugging
+                System.out.println("Down key pressed!");  // debugging with print statements
                 ga.moveDown();
                 ga.repaint();
             }
         });
     }
-
+    //function starts game
     public void startGame() {
         gameThread = new GameThread(ga, this);
         gameThread.start();
+        SwingUtilities.invokeLater(() ->startButton.setVisible(false));
+    }
+
+
+    public void restartGame(){
+        SwingUtilities.invokeLater(() ->startButton.setVisible(true));
+        ga.clearGrid();
+
     }
 }

@@ -17,27 +17,22 @@ public class Main extends JFrame {
             JMenuBar menuBar = new JMenuBar();
             JMenu connectMenu = new JMenu("Connection");
             JMenu helpMenu = new JMenu("Help");
-            JMenu startTetris = new JMenu("Play");
 
             JMenuItem aboutMenuItem = new JMenuItem("About");
             JMenuItem startMenuItem = new JMenuItem("Start Connection");
             JMenuItem stopMenuItem = new JMenuItem("Stop");
-            JMenuItem startGame = new JMenuItem("Start Game");
 
             connectMenu.add(startMenuItem);
             connectMenu.add(stopMenuItem);
             helpMenu.add(aboutMenuItem);
-            startTetris.add(startGame);
 
 
             startMenuItem.addActionListener(controller);
             stopMenuItem.addActionListener(controller);
             aboutMenuItem.addActionListener(controller);
-            startGame.addActionListener(controller);
 
             menuBar.add(connectMenu);
             menuBar.add(helpMenu);
-            menuBar.add(startTetris);
             return menuBar;
         }
 

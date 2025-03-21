@@ -19,19 +19,17 @@ public class GameArea extends JPanel {
 
 
     public GameArea(int columns, int rows) {
-        // Set a fixed preferred size for the game area
-        this.setPreferredSize(new Dimension(300, 400)); // Ensure it fits within placeholder
+        //ixed preferred size for the game area
+        this.setPreferredSize(new Dimension(300, 400));
         this.setBackground(Color.BLACK);
         this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 5));
 
-        // Initialize grid properties
+        // initialize grid properties
         this.gridColumns = columns;
         this.gridRows = rows;
-        // Slightly extend beyond the grid for a clean border
-        int panelWidth = gridColumns * gridCellSize + 20; // Extra padding
-        int panelHeight = gridRows * gridCellSize + 20;
 
-        // Calculate grid cell size dynamically
+
+        // calculate grid cell size dynamically
         int width = getPreferredSize().width;
         int height = getPreferredSize().height;
         gridCellSize = Math.min(width / gridColumns, height / gridRows);
@@ -39,10 +37,9 @@ public class GameArea extends JPanel {
         background = new Color[gridRows][gridColumns];
         blocks = new TetrisBlock[]{new i_Shape(),new J_Shape()
                 ,new L_Shape(), new O_Shape(), new S_Shape(), new T_Shape(), new Z_Shape()};
-        //background[0][0] = Color.blue;
-        // spawnBlock();
-    }
 
+    }
+    //have blocks at ground
     public void moveBlockToBackground(){
         int[][] shape = block.getShape();
         int h = block.getHeight();
@@ -64,26 +61,26 @@ public class GameArea extends JPanel {
             }
         }
     }
-
+    //spawns blocks
     public void spawnBlock() {
         Random r = new Random();
         block = blocks[r.nextInt(blocks.length)];
         block = new TetrisBlock(block.getShape());
 
-        // Ensure the block spawns within the grid width
+        // ensure the block spawns within the grid width
         int maxSpawnX = gridColumns - block.getWidth();
         int spawnX = Math.max(0, r.nextInt(maxSpawnX + 1)); // Ensure valid X position
 
         block.setX(spawnX);
 
-        // Spawn block **above** the grid to give a falling effect
+
         int spawnY = -block.getHeight(); // Place block above the first row
         block.setY(spawnY);
 
         repaint();
     }
 
-
+    //draws background
     private void drawBackground(Graphics g, int xOffset, int yOffset) {
         for (int r = 0; r < gridRows; r++) {
             for (int c = 0; c < gridColumns; c++) {
@@ -98,6 +95,7 @@ public class GameArea extends JPanel {
         }
     }
 
+    //draws blocks
     private void drawBlock(Graphics g, int xOffset, int yOffset) {
         if (block == null) return;
 
@@ -122,6 +120,7 @@ public class GameArea extends JPanel {
             }
         }
     }
+
 
 
 
@@ -165,22 +164,8 @@ public class GameArea extends JPanel {
         }
         return false;
     }
-   /* private void drawBackground(Graphics g) {
-        for (int r = 0; r < gridRows; r++) {
-            for (int c = 0; c < gridColumns; c++) {
-                if (background[r][c] != null) {
-                    int x = c * gridCellSize;
-                    int y = r * gridCellSize;
 
-                    // Use stored color or gray if color mode is off
-                    Color drawColor = useColor ? background[r][c] : Color.GRAY;
-                    drawGridSquare(g, drawColor, x, y);
-                }
-            }
-        }
-    }
-
-*/
+    //draw grid
     private void drawGridSquare(Graphics g, Color color, int x, int y)
     {
         g.setColor(color);
@@ -188,7 +173,7 @@ public class GameArea extends JPanel {
         g.setColor(Color.black);
         g.drawRect(x,y,gridCellSize,gridCellSize);
     }
-
+    //movements
     public void moveBlockRight()
     {
         if(block == null) return;
@@ -213,26 +198,32 @@ public class GameArea extends JPanel {
         repaint();
 
     }
-    public void rotateBlock()
-    {
-        if(block == null) return;
+
+    public void rotateBlock() {
+        if (block == null) return;
+
+        // only allow rotation if the block is fully inside the visible grid
+        if (block.getY() < 0) return;
 
         block.rotate();
 
-        // Check if rotation causes out-of-bounds issue
-        if(block.getLeftEdge() < 0)
+        // make sure it stays in bounds
+        if (block.getLeftEdge() < 0)
             block.setX(0);
-        if(block.getRightEdge() >= gridColumns)
+        if (block.getRightEdge() >= gridColumns)
             block.setX(gridColumns - block.getWidth());
-        if(block.getBottomEdge() >= gridRows)
+        if (block.getBottomEdge() >= gridRows)
             block.setY(gridRows - block.getHeight());
 
-        // If block collides with the background, undo the rotation
-        if(isCollision())
+        // undo rotation if it causes collision
+        if (isCollision()) {
             block.rotateBack();
+        }
 
         repaint();
     }
+
+    //check for collisions
     private boolean isCollision() {
         int[][] shape = block.getShape();
         int w = block.getWidth();
@@ -246,10 +237,10 @@ public class GameArea extends JPanel {
 
                     if (y >= 0 && y < gridRows && x >= 0 && x < gridColumns) {
                         if (background[y][x] != null) {
-                            return true; // Collision detected
+                            return true; //collision detected
                         }
                     } else {
-                        return true; // Out of bounds
+                        return true; // out of bounds
                     }
                 }
             }
@@ -350,6 +341,7 @@ public class GameArea extends JPanel {
         return true;
     }
 
+    //clears lines when lines are full
     public int clearLines()
     {
         boolean lineFilled;
@@ -401,4 +393,16 @@ public class GameArea extends JPanel {
         this.useColor = useColor;
         repaint();
     }
+    //clears the grid again
+    public void clearGrid() {
+        for (int row = 0; row < gridRows; row++) {
+            for (int col = 0; col < gridColumns; col++) {
+                background[row][col] = null; // clear the background
+            }
+        }
+        block = null;
+        repaint();
+    }
+
+
 }

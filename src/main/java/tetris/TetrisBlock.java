@@ -97,7 +97,7 @@ public class TetrisBlock {
     public int getRightEdge(){return x + getWidth();}
 
     public void rotateBack() {
-        // Rotate 3 more times to revert to the original orientation
+        // rotate 3 more times to revert to the original orientation
         this.rotate();
         this.rotate();
         this.rotate();

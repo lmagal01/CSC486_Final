@@ -26,9 +26,6 @@ public class Controller implements ActionListener {
         } else if (e.getActionCommand().equals("Stop")) {
             System.out.println("Stop");
             viewMain.pauseThread(true);
-        }else if(e.getActionCommand().equals("Play")){
-            viewMain.startGame();
-
         }
     }
 }
